@@ -4,10 +4,10 @@
   "files": [],
   "references": [
     {
-      "path": "./core"
+      "path": "./libs/core"
     },
     {
-      "path": "./libs/core"
+      "path": "./libs/files"
     }
   ]
 }
