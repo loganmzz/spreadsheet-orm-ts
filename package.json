@@ -33,11 +33,30 @@
     "ts-node": "10.9.1",
     "tslib": "^2.3.0",
     "typescript": "~5.7.2",
-    "typescript-eslint": "^8.19.0"
+    "typescript-eslint": "^8.19.0",
+    "verdaccio": "^6.0.5"
   },
   "workspaces": [
     "packages/*",
     "libs/core",
     "libs/*"
-  ]
+  ],
+  "nx": {
+    "includedScripts": [],
+    "targets": {
+      "local-registry": {
+        "executor": "@nx/js:verdaccio",
+        "options": {
+          "port": 4873,
+          "config": ".verdaccio/config.yml",
+          "storage": "tmp/local-registry/storage"
+        }
+      }
+    }
+  },
+  "dependencies": {
+    "@google-cloud/local-auth": "3.0.1",
+    "google-auth-library": "9.15.1",
+    "googleapis": "148.0.0"
+  }
 }
