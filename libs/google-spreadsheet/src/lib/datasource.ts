@@ -30,10 +30,20 @@ export class GoogleSpreadsheetCollection implements core.datasource.Collection {
     private spreadsheetId: string,
   ) {}
 
-  async* getRows(): AsyncGenerator<core.datasource.Row> {
+  async* getRows(query?: core.datasource.CollectionGetRowsInput): AsyncGenerator<core.datasource.Row> {
+    let range = `'${this.name}'`;
+    if (query?.rows) {
+      const startRow = query.rows[0] + 1;
+      let lastRow  = query.rows[1];
+      if (lastRow === Infinity) {
+        range = `${range}!A${startRow}:ZZZ`;
+      } else {
+        range = `${range}!${startRow}:${lastRow}`;
+      }
+    }
     const response = await this.client.spreadsheets.values.get({
       spreadsheetId: this.spreadsheetId,
-      range: this.name,
+      range,
       valueRenderOption: 'UNFORMATTED_VALUE',
     })
     for (const row of response.data.values ?? []) {

@@ -19,14 +19,22 @@ type GoogleClientConfiguration = {
   scopes: string[],
 }
 
+function toAbsoluePath(filepath: string): string {
+  filepath = path.normalize(filepath);
+  if (!path.isAbsolute(filepath)) {
+    filepath = path.join(process.cwd(), filepath);
+  }
+  return filepath;
+}
+
 export class GoogleClient {
   private configuration: GoogleClientConfiguration;
   constructor(
     configuration: GoogleClientConfigurationLike,
   ) {
     this.configuration = {
-      tokenPath: configuration?.tokenPath ?? path.join( process.cwd(), '.local.google-token.json'),
-      keyfilePath: path.join( process.cwd(), process.env.GOOGLE_APPLICATION_CREDENTIALS || '.credentials.json' ),
+      tokenPath: toAbsoluePath(configuration?.tokenPath || '.local.google-token.json'),
+      keyfilePath: toAbsoluePath(process.env.GOOGLE_APPLICATION_CREDENTIALS || '.credentials.json'),
       scopes: configuration?.scopes ?? DEFAULT_SCOPES,
     }
   }

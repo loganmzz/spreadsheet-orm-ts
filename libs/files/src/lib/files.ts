@@ -29,21 +29,25 @@ export class FilesCollection implements core.datasource.Collection {
     readonly path: string,
   ) {}
 
-  async* getRows(): AsyncGenerator<core.datasource.Row> {
+  async* getRows(query?: core.datasource.CollectionGetRowsInput): AsyncGenerator<core.datasource.Row> {
     const reader = readline.createInterface({
       input: fs.createReadStream(this.path),
       crlfDelay: Infinity,
     });
+    const firstRowIndex = query?.rows?.[0] ?? 0;
+    const lastRowIndex = query?.rows?.[1] ?? Infinity;
     let rowIndex = 0;
     for await (const line of reader) {
+      const currentRowIndex = rowIndex++;
+      if (currentRowIndex <  firstRowIndex) continue;
+      if (currentRowIndex >= lastRowIndex) break;
       let values: any = undefined;
       try {
         values = JSON.parse(`[${line}]`);
       } catch (e) {
-        throw new Error(`Error reading collection ${JSON.stringify(this.name)}: ${this.path}:${rowIndex}: Invalid content: ${e}`, { cause: e });
+        throw new Error(`Error reading collection ${JSON.stringify(this.name)}: ${this.path}:${currentRowIndex}: Invalid content: ${e}`, { cause: e });
       }
-      yield new FilesRow(rowIndex, values);
-      rowIndex++;
+      yield new FilesRow(currentRowIndex, values);
     }
   }
 }

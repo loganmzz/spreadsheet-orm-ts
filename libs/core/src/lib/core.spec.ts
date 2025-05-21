@@ -21,8 +21,14 @@ class InMemoryCollection implements core.datasource.Collection {
     private rows: any[][],
   ) {}
 
-  async* getRows(): AsyncGenerator<core.datasource.Row> {
+  async* getRows(query?: core.datasource.CollectionGetRowsInput): AsyncGenerator<core.datasource.Row> {
+    const firstRowIndex = query?.rows?.[0] ?? 0;
+    const lastRowIndex = query?.rows?.[1] ?? Infinity;
+    let rowIndex = 0;
     for (const row of this.rows) {
+      const currentRowIndex = rowIndex++;
+      if (currentRowIndex <  firstRowIndex) continue;
+      if (currentRowIndex >= lastRowIndex) break;
       yield new InMemoryRow([...row]);
     }
   }

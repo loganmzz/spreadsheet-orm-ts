@@ -54,7 +54,9 @@ class CollectionResolver {
     const collectionName = spec.name ?? name;
     const collection = await engine.datasource.getCollection(collectionName);
 
-    const rows = collection.getRows();
+    const rows = collection.getRows({
+      rows: [0, 1]
+    });
     const row = await rows.next();
     if (row.done) {
       throw new Error(`No title row for collection ${JSON.stringify(name)}`);
@@ -87,9 +89,9 @@ class CollectionResolver {
 
   async* readAll<T>(): AsyncGenerator<T> {
     const collection = await this.engine.datasource.getCollection(this.name);
-    const rows = collection.getRows();
-    let next = await rows.next();
-    if (next.done) return;
+    const rows = collection.getRows({
+      rows: [1, Infinity],
+    });
 
     for await (const row of rows) {
       const raws = await row.getValues();
